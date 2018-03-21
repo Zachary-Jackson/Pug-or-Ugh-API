@@ -16,3 +16,12 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = get_user_model()
+
+
+class UserPrefSerializer(serializers.ModelSerializer):
+    class Meta:
+        fields = (
+            'age',
+            'gender',
+            'size'
+        )
