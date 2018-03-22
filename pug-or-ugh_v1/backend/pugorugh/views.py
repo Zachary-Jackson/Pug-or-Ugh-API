@@ -1,7 +1,6 @@
 from django.contrib.auth import get_user_model
 
-from rest_framework import generics, mixins, permissions, viewsets
-from rest_framework.authtoken.models import Token
+from rest_framework import generics, permissions
 
 from . import models
 from . import serializers
@@ -19,10 +18,17 @@ class RetrieveUpdateUserPrefView(generics.RetrieveUpdateAPIView):
     serializer_class = serializers.UserPrefSerializer
 
     def get_object(self):
-        # The key argument in current_user is the token for the User test
         query = self.get_queryset()
         current_user = self.request.user
         filtered_queryset = query.filter(user=current_user)
-        # getting the index 0 of the queryset returns the queryset as a
-        # single item instead of a list
+
+        # If the current_user does not have a UserPref model
+        # this will initialize it for the user
+        if len(filtered_queryset) == 0:
+            models.UserPref(user=current_user).save()
+            query = self.get_queryset()
+            filtered_queryset = query.filter(user=current_user)
+
+        # Getting the index 0 of the queryset returns the queryset as a
+        # single item for the AngularJS application
         return filtered_queryset[0]

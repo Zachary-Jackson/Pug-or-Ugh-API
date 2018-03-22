@@ -30,9 +30,23 @@ class UserDog(models.Model):
 class UserPref(models.Model):
     """This class sets a User's preference about a dog"""
     user = models.OneToOneField(User)
-    age = models.CharField(max_length=7)
-    gender = models.CharField(max_length=3)
-    size = models.CharField(max_length=8)
+
+    age = models.CharField(
+        max_length=7,
+        help_text=("All age options are 'b,y,a,s'" +
+                   " for baby, young, adult and senior"),
+        default='b,y,a,s')
+
+    gender = models.CharField(
+        max_length=3,
+        help_text=("All gender options are 'm,f' for male and female"),
+        default='m,f')
+
+    size = models.CharField(
+        max_length=8,
+        help_text=("All size options are 's,m,l,xl'" +
+                   " for small, medium, large, and extra large"),
+        default='s,m,l,xl')
 
     def __str__(self):
         return self.user.username + "'s dog preferences"
