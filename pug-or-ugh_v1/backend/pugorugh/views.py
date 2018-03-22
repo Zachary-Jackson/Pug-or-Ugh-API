@@ -18,10 +18,11 @@ class RetrieveUpdateUserPrefView(generics.RetrieveUpdateAPIView):
     queryset = models.UserPref.objects.all()
     serializer_class = serializers.UserPrefSerializer
 
-    def get_queryset(self):
+    def get_object(self):
         # The key argument in current_user is the token for the User test
-        current_user = Token.objects.get(key='bb8fbe3af527bae1920337e8b9f35e1d07e10c56').user
-        filtered_queryset = self.queryset.filter(user=current_user)
+        query = self.get_queryset()
+        current_user = self.request.user
+        filtered_queryset = query.filter(user=current_user)
         # getting the index 0 of the queryset returns the queryset as a
         # single item instead of a list
         return filtered_queryset[0]
