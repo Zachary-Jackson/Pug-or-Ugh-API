@@ -7,9 +7,16 @@ class Dog(models.Model):
     name = models.CharField(max_length=100)
     image_filename = models.ImageField()
     breed = models.CharField(max_length=100)
-    age = models.IntegerField()
-    gender = models.CharField(max_length=1)
-    size = models.CharField(max_length=2)
+    age = models.IntegerField(
+        help_text='Please enter an integer as months lived.')
+    gender = models.CharField(
+        max_length=1,
+        help_text="Enter 'm' for male, 'f' for female or 'u' for unknown")
+    size = models.CharField(
+        max_length=2,
+        help_text=("All size options are 's,m,l,xl,u'" +
+                   " for small, medium, large, extra large and unknown"),
+        )
 
     def __str__(self):
         return self.name
@@ -17,14 +24,19 @@ class Dog(models.Model):
 
 class UserDog(models.Model):
     """This is the class that links dogs with Users"""
-    user = models.OneToOneField(User)
-    dog = models.ManyToManyField(Dog)
-    # status is whether a User likes a dog or not. 'l' for like or 'd'
-    # for disliked.
-    status = models.CharField(max_length=1)
+    user = models.ForeignKey(User)
+    dog = models.ForeignKey(Dog)
+    status = models.CharField(
+        max_length=1,
+        help_text="All status options are 'l,d,u'" +
+                  " for liked, disliked, and undecided.",
+        default='u')
 
     def __str__(self):
-        return self.user.username + "'s dogs"
+        return (
+            'Dog: ' + self.dog.name.title() + ', User: '
+            + self.user.username.title()
+            )
 
 
 class UserPref(models.Model):
@@ -49,4 +61,4 @@ class UserPref(models.Model):
         default='s,m,l,xl')
 
     def __str__(self):
-        return self.user.username + "'s dog preferences"
+        return self.user.username.title() + "'s dog preferences"
