@@ -9,7 +9,7 @@ class DogSerializer(serializers.ModelSerializer):
     """This serializes the Dog model"""
     # For id see get_id
     id = serializers.SerializerMethodField()
-    
+
     class Meta:
         fields = (
             'name',

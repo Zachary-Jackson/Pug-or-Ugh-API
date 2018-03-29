@@ -7,11 +7,14 @@ class Dog(models.Model):
     name = models.CharField(max_length=100)
     image_filename = models.ImageField()
     breed = models.CharField(max_length=100)
+    
     age = models.IntegerField(
         help_text='Please enter an integer as months lived.')
+
     gender = models.CharField(
         max_length=1,
         help_text="Enter 'm' for male, 'f' for female or 'u' for unknown")
+
     size = models.CharField(
         max_length=2,
         help_text=("All size options are 's,m,l,xl,u'" +
@@ -26,6 +29,7 @@ class UserDog(models.Model):
     """This is the class that links dogs with Users"""
     user = models.ForeignKey(User)
     dog = models.ForeignKey(Dog)
+
     status = models.CharField(
         max_length=1,
         help_text="All status options are 'l,d,u'" +
