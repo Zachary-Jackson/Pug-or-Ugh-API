@@ -21,7 +21,7 @@ urlpatterns = format_suffix_patterns([
     url(r'^api/user/preferences/$',
         RetrieveUpdateUserPrefView.as_view(),
         name='user_pref_detail'),
-    url(r'^api/dog/(-)?(?P<dog_pk>\d+)/undecided/next/',
+    url(r'^api/dog/(?P<dog_pk>(-)?\d+)/undecided/next/',
         RetrieveUndecidedDogView.as_view(),
         name='undecided_dog_detail'
         )

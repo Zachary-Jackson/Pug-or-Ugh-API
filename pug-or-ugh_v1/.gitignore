@@ -1,6 +1,7 @@
 .coverage
+db.sqlite3
 .idea
+media
 __pycache__
 *.pyc
 venv
-media

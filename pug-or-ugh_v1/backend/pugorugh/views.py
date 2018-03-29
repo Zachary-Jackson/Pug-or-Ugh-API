@@ -41,11 +41,24 @@ class RetrieveUndecidedDogView(generics.RetrieveAPIView):
 
     def get_object(self):
         pk = self.kwargs.get('dog_pk')
-        # This if statement temporarly negates the -1 React is giving in the
-        # url http://localhost:8000/api/dog/-1/undecided/next/
-        # and just defaults to a pk of 1 for now.
-        # Will get an index error if no dogs in database
-        if pk == '1':
-            return self.queryset.filter(id=1)[0]
-        return self.queryset.filter(id=self.kwargs.get('dog_pk'))[0]
-        # return self.queryset.filter(id=1)[0]
+
+        query = self.get_queryset()
+
+        # if pk is -1 get the first dog in the query
+        if pk == '-1':
+            return query[0]
+        else:
+            current_dog = query.filter(id=pk)
+            # This turns current_dog into a single instance
+            current_dog = current_dog[0]
+
+            # if next_dog is true the next dog in the queryset is used
+            next_dog = False
+            for dog in query:
+                if next_dog:
+                    return dog
+                if current_dog == dog:
+                    next_dog = True
+
+        # If the next_dog is not found return nothing
+        return False

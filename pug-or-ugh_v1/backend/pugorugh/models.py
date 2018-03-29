@@ -7,18 +7,18 @@ class Dog(models.Model):
     name = models.CharField(max_length=100)
     image_filename = models.ImageField()
     breed = models.CharField(max_length=100)
-    
+
     age = models.IntegerField(
         help_text='Please enter an integer as months lived.')
 
     gender = models.CharField(
         max_length=1,
-        help_text="Enter 'm' for male, 'f' for female or 'u' for unknown")
+        help_text="Enter 'm' for male, 'f' for female")
 
     size = models.CharField(
         max_length=2,
-        help_text=("All size options are 's,m,l,xl,u'" +
-                   " for small, medium, large, extra large and unknown"),
+        help_text=("All size options are 's,m,l,xl'" +
+                   " for small, medium, large or extra large"),
         )
 
     def __str__(self):
