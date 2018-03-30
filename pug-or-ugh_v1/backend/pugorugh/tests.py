@@ -35,7 +35,7 @@ class PugOrUghViewsTests(TestCase):
         view = RetrieveUpdateUserPrefView.as_view()
 
         # Their should be no UserPref in the database
-        assert len(UserPref.objects.all()) == 0
+        self.assertEqual(len(UserPref.objects.all()), 0)
 
         response = view(request)
         self.assertEqual(response.status_code, 200)

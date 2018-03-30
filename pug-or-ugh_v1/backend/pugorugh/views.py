@@ -1,6 +1,7 @@
 from django.contrib.auth import get_user_model
 
-from rest_framework import generics, permissions
+from rest_framework import generics, status, permissions
+from rest_framework.response import Response
 
 from . import models
 from . import serializers
@@ -34,31 +35,43 @@ class RetrieveUpdateUserPrefView(generics.RetrieveUpdateAPIView):
         return filtered_queryset[0]
 
 
-class RetrieveUndecidedDogView(generics.RetrieveAPIView):
-    """This view returns an dog that the user is undecided on"""
-    queryset = models.Dog.objects.all()
+class RetrieveDogView(generics.RetrieveAPIView):
+    """This view returns the next dog based on the the pk and status pks"""
+    queryset = models.UserDog.objects.all()
     serializer_class = serializers.DogSerializer
 
     def get_object(self):
         pk = self.kwargs.get('dog_pk')
 
-        query = self.get_queryset()
+        dog_status = self.kwargs.get('status_pk')
+        dog_status = dog_status[:1]
 
-        # if pk is -1 get the first dog in the query
+        query = self.get_queryset().filter(user=self.request.user)
+        dog_query = models.Dog.objects.all()
+
+        # This initializes a UserDog for each dog for the User
+        # if this has not been completed already
+        if len(query) == 0:
+            for dog in dog_query:
+                models.UserDog(
+                    user=self.request.user,
+                    dog=dog,
+                    status='u').save()
+            query = self.get_queryset().filter(user=self.request.user)
+
+        # This gets a list of pks for dogs matching the status_pk
+        found_pks = []
+        for item in query:
+            if item.status == dog_status:
+                found_pks.append(item.dog.pk)
+
         if pk == '-1':
-            return query[0]
-        else:
-            current_dog = query.filter(id=pk)
-            # This turns current_dog into a single instance
-            current_dog = current_dog[0]
+            return dog_query.get(pk=found_pks[0])
 
-            # if next_dog is true the next dog in the queryset is used
-            next_dog = False
-            for dog in query:
-                if next_dog:
-                    return dog
-                if current_dog == dog:
-                    next_dog = True
+        pk = int(pk)
+        found_index = found_pks.index(pk)
 
-        # If the next_dog is not found return nothing
-        return False
+        # Currently causes an IndexError and makes the React app work
+        # properly. Could find better solution.
+        dog_pk = found_pks[found_index + 1]
+        return dog_query.get(pk=dog_pk)
