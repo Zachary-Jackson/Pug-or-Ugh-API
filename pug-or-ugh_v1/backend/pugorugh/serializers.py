@@ -30,6 +30,18 @@ class UserSerializer(serializers.ModelSerializer):
         )
         user.set_password(validated_data['password'])
         user.save()
+
+        # This initializes UserPref for the user
+        models.UserPref(user=user).save()
+
+        # This initializes UserDog objects for the user
+        dog_query = models.Dog.objects.all()
+        for dog in dog_query:
+            models.UserDog(
+                user=user,
+                dog=dog,
+                status='u').save()
+
         return user
 
     class Meta:

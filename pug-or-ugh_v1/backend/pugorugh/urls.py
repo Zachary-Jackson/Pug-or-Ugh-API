@@ -6,7 +6,8 @@ from rest_framework.urlpatterns import format_suffix_patterns
 from rest_framework.authtoken.views import obtain_auth_token
 
 from pugorugh.views import (
-    RetrieveDogView, RetrieveUpdateUserPrefView, UserRegisterView)
+    RetrieveDogView, RetrieveUpdateUserPrefView, UserRegisterView,
+    UpdateUserDogView)
 
 # API endpoints
 urlpatterns = format_suffix_patterns([
@@ -24,5 +25,9 @@ urlpatterns = format_suffix_patterns([
     url(r'^api/dog/(?P<dog_pk>(-)?\d+)/(?P<status_pk>\w+)/next/',
         RetrieveDogView.as_view(),
         name='dog_detail'
+        ),
+    url(r'^api/dog/(?P<dog_pk>(-)?\d+)/(?P<status_pk>\w+)/',
+        UpdateUserDogView.as_view(),
+        name='dog_update'
         )
 ])

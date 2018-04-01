@@ -1,7 +1,6 @@
 from django.contrib.auth import get_user_model
 
-from rest_framework import generics, status, permissions
-from rest_framework.response import Response
+from rest_framework import generics, permissions
 
 from . import models
 from . import serializers
@@ -19,20 +18,7 @@ class RetrieveUpdateUserPrefView(generics.RetrieveUpdateAPIView):
     serializer_class = serializers.UserPrefSerializer
 
     def get_object(self):
-        query = self.get_queryset()
-        current_user = self.request.user
-        filtered_queryset = query.filter(user=current_user)
-
-        # If the current_user does not have a UserPref model
-        # this will initialize it for the user
-        if len(filtered_queryset) == 0:
-            models.UserPref(user=current_user).save()
-            query = self.get_queryset()
-            filtered_queryset = query.filter(user=current_user)
-
-        # Getting the index 0 of the queryset returns the queryset as a
-        # single item for the AngularJS application
-        return filtered_queryset[0]
+        return self.get_queryset().get(user=self.request.user)
 
 
 class RetrieveDogView(generics.RetrieveAPIView):
@@ -48,16 +34,6 @@ class RetrieveDogView(generics.RetrieveAPIView):
 
         query = self.get_queryset().filter(user=self.request.user)
         dog_query = models.Dog.objects.all()
-
-        # This initializes a UserDog for each dog for the User
-        # if this has not been completed already
-        if len(query) == 0:
-            for dog in dog_query:
-                models.UserDog(
-                    user=self.request.user,
-                    dog=dog,
-                    status='u').save()
-            query = self.get_queryset().filter(user=self.request.user)
 
         # This gets a list of pks for dogs matching the status_pk
         found_pks = []
@@ -75,3 +51,25 @@ class RetrieveDogView(generics.RetrieveAPIView):
         # properly. Could find better solution.
         dog_pk = found_pks[found_index + 1]
         return dog_query.get(pk=dog_pk)
+
+
+class UpdateUserDogView(generics.UpdateAPIView):
+    """This view allows for UserDog to be updated"""
+    queryset = models.Dog.objects.all()
+    serializer_class = serializers.DogSerializer
+
+    def get_object(self):
+        pk = self.kwargs.get('dog_pk')
+
+        new_status = self.kwargs.get('status_pk')
+        new_status = new_status[:1]
+
+        dog = self.get_queryset().filter(pk=pk)
+
+        # This finds the UserDog associated with the dog an User
+        user_dog_query = models.UserDog.objects.filter(user=self.request.user)
+        user_dog = user_dog_query.get(dog=dog)
+
+        user_dog.status = new_status
+        user_dog.save()
+        return dog
