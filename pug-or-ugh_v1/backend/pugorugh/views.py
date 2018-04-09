@@ -1,6 +1,7 @@
 from django.contrib.auth import get_user_model
 
 from rest_framework import generics, permissions
+from rest_framework.response import Response
 
 from . import models
 from . import serializers
@@ -18,6 +19,7 @@ class RetrieveUpdateUserPrefView(generics.RetrieveUpdateAPIView):
     serializer_class = serializers.UserPrefSerializer
 
     def get_object(self):
+        """Returns the UserPref object for the logged in User"""
         return self.get_queryset().get(user=self.request.user)
 
 
@@ -26,31 +28,49 @@ class RetrieveDogView(generics.RetrieveAPIView):
     queryset = models.UserDog.objects.all()
     serializer_class = serializers.DogSerializer
 
-    def get_object(self):
-        pk = self.kwargs.get('dog_pk')
-
+    def get_queryset(self):
+        """Gets all UserDog models from the logged in User and filters the
+        results based on liked, disliked, or undecided"""
         dog_status = self.kwargs.get('status_pk')
+        # gets down_status down to one letter like the database
         dog_status = dog_status[:1]
 
-        query = self.get_queryset().filter(user=self.request.user)
+        return self.queryset.filter(user=self.request.user, status=dog_status)
+
+    def get_object(self):
+        """This figures out the next dog by pk or returns False"""
+        pk = self.kwargs.get('dog_pk')
+
+        found_pks = []
+        for userdog in self.get_queryset():
+            found_pks.append(userdog.dog.pk)
+
         dog_query = models.Dog.objects.all()
 
-        # This gets a list of pks for dogs matching the status_pk
-        found_pks = []
-        for item in query:
-            if item.status == dog_status:
-                found_pks.append(item.dog.pk)
-
+        # The react app starts finding dogs with a -1 pk
         if pk == '-1':
-            return dog_query.get(pk=found_pks[0])
+            try:
+                return dog_query.get(pk=found_pks[0])
+            except IndexError:
+                return False
 
-        pk = int(pk)
-        found_index = found_pks.index(pk)
+        # we find the current dog's index location so we can use the next
+        # pk in the list
+        found_index = found_pks.index(int(pk))
 
-        # Currently causes an IndexError and makes the React app work
-        # properly. Could find better solution.
-        dog_pk = found_pks[found_index + 1]
-        return dog_query.get(pk=dog_pk)
+        try:
+            dog_pk = found_pks[found_index + 1]
+        except IndexError:
+            return False
+        else:
+            return dog_query.get(pk=dog_pk)
+
+    def get(self, reqest, dog_pk, status_pk, format=None):
+        dog = self.get_object()
+        if dog:
+            serializer = serializers.DogSerializer(dog)
+            return Response(serializer.data)
+        return Response(status=404)
 
 
 class UpdateUserDogView(generics.UpdateAPIView):

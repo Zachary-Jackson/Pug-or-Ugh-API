@@ -28,19 +28,21 @@ class PugOrUghViewsTests(TestCase):
             size='l'
         )
 
+        self.user_pref = UserPref.objects.create(
+            user=self.user,
+            age='b,y,a,s',
+            gender='m,f',
+            size='s,m,l,xl'
+        )
+
     def test_RetrieveUpdateUserPrefView(self):
         factory = APIRequestFactory()
         request = factory.get('/api/user/preferences/')
         force_authenticate(request, user=self.user)
         view = RetrieveUpdateUserPrefView.as_view()
 
-        # Their should be no UserPref in the database
-        self.assertEqual(len(UserPref.objects.all()), 0)
-
         response = view(request)
         self.assertEqual(response.status_code, 200)
-        # The view should have created a UserPref for the User
-        self.assertEqual(len(UserPref.objects.all()), 1)
         self.assertEqual(
             response.data,
             {'age': 'b,y,a,s', 'gender': 'm,f', 'size': 's,m,l,xl'})
