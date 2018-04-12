@@ -8,19 +8,10 @@ from . import serializers
 
 
 class UserRegisterView(generics.CreateAPIView):
+    """This view creates a user"""
     permission_classes = (permissions.AllowAny,)
     model = get_user_model()
     serializer_class = serializers.UserSerializer
-
-
-class RetrieveUpdateUserPrefView(generics.RetrieveUpdateAPIView):
-    """This view allows users to update and get user prefrences"""
-    queryset = models.UserPref.objects.all()
-    serializer_class = serializers.UserPrefSerializer
-
-    def get_object(self):
-        """Returns the UserPref object for the logged in User"""
-        return self.get_queryset().get(user=self.request.user)
 
 
 class RetrieveDogView(generics.RetrieveAPIView):
@@ -93,3 +84,13 @@ class UpdateUserDogView(generics.UpdateAPIView):
         user_dog.status = new_status
         user_dog.save()
         return dog
+
+
+class RetrieveUpdateUserPrefView(generics.RetrieveUpdateAPIView):
+    """This view allows users to update and get user prefrences"""
+    queryset = models.UserPref.objects.all()
+    serializer_class = serializers.UserPrefSerializer
+
+    def get_object(self):
+        """Returns the UserPref object for the logged in User"""
+        return self.get_queryset().get(user=self.request.user)

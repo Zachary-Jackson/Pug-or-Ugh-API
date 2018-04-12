@@ -28,6 +28,6 @@ urlpatterns = format_suffix_patterns([
         ),
     url(r'^api/dog/(?P<dog_pk>(-)?\d+)/(?P<status_pk>\w+)/',
         UpdateUserDogView.as_view(),
-        name='dog_update'
+        name='UserDog_update'
         )
 ])

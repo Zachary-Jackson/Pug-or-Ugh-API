@@ -1,12 +1,13 @@
 from django.contrib.auth.models import User
+from django.core.urlresolvers import reverse
 from django.test import TestCase
 
 
 from rest_framework.test import APIRequestFactory, force_authenticate
 
 
-from .models import Dog, UserPref
-from .views import RetrieveUpdateUserPrefView
+from .models import Dog, UserDog, UserPref
+from . import views
 
 
 class PugOrUghViewsTests(TestCase):
@@ -35,11 +36,82 @@ class PugOrUghViewsTests(TestCase):
             size='s,m,l,xl'
         )
 
-    def test_RetrieveUpdateUserPrefView(self):
+        UserDog.objects.create(
+            user=self.user,
+            dog=self.dog,
+            status='u'
+        )
+
+    def test_UserRegisterView(self):
+        """Ensures users can create profiles and checks for valid passwords"""
         factory = APIRequestFactory()
-        request = factory.get('/api/user/preferences/')
+        request = factory.post(
+            reverse('register-user'),
+            {'password': 'test_password', 'username': 'seconduser'})
+        view = views.UserRegisterView.as_view()
+
+        response = view(request)
+
+        # Their should now be a new user in adition to SetUp
+        self.assertEqual(len(UserPref.objects.all()), 2)
+        self.assertEqual(response.status_code, 201)
+
+        # This post should be bad because of an invalid password
+        request = factory.post(
+            reverse('register-user'),
+            {'password': 'test password', 'username': 'seconduser'})
+        view = views.UserRegisterView.as_view()
+
+        response = view(request)
+        self.assertEqual(response.status_code, 400)
+
+    def test_RetrieveDogView(self):
+        """Checks to see if the correct Dog is returned"""
+        factory = APIRequestFactory()
+
+        # -1 dog_pk should start us with first dog.
+        # the following should be using reverse
+
+        request = factory.get(
+            reverse(
+                'dog_detail',
+                kwargs={'dog_pk': '-1', 'status_pk': 'undecided'}))
+
         force_authenticate(request, user=self.user)
-        view = RetrieveUpdateUserPrefView.as_view()
+        view = views.RetrieveDogView.as_view()
+
+        response = view(request, dog_pk='-1', status_pk='undecided')
+
+        self.assertEqual(response.status_code, 200)
+
+        self.assertEqual(
+            response.data,
+            {'name': 'Francesca', 'image_filename':
+                'pugorugh/static/images/dogs/1.jpg', 'breed': 'Labrador',
+                'age': 72, 'gender': 'f', 'size': 'l', 'id': 1})
+
+        # This second test uses the value we retured for 'id' (1) and
+        # tries to go to the next dog, but there is not one
+        request = factory.get(
+            reverse(
+                'dog_detail',
+                kwargs={'dog_pk': '1', 'status_pk': 'undecided'}))
+
+        force_authenticate(request, user=self.user)
+        view = views.RetrieveDogView.as_view()
+
+        response = view(request, dog_pk='1', status_pk='undecided')
+
+        self.assertEqual(response.status_code, 404)
+
+    def test_RetrieveUpdateUserPrefView(self):
+        """Makes sure UserPref can be returned and updated"""
+        factory = APIRequestFactory()
+
+        # This sections tests a GET request
+        request = factory.get(reverse('user_pref_detail'))
+        force_authenticate(request, user=self.user)
+        view = views.RetrieveUpdateUserPrefView.as_view()
 
         response = view(request)
         self.assertEqual(response.status_code, 200)
@@ -49,7 +121,7 @@ class PugOrUghViewsTests(TestCase):
 
         # This section tests a PUT request
         request = factory.put(
-            '/api/user/preferences/',
+            reverse('user_pref_detail'),
             {'age': 'b,y', 'gender': 'f', 'size': 's,m'})
         force_authenticate(request, user=self.user)
         response = view(request)
@@ -58,9 +130,6 @@ class PugOrUghViewsTests(TestCase):
         self.assertEqual(
             response.data,
             {'age': 'b,y', 'gender': 'f', 'size': 's,m'})
-
-        # The view should not have created a second UserPref object
-        self.assertEqual(len(UserPref.objects.all()), 1)
 
         preferences = UserPref.objects.get(id=1)
         self.assertEqual(preferences.age, 'b,y')
