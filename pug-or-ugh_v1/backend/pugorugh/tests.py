@@ -104,6 +104,57 @@ class PugOrUghViewsTests(TestCase):
 
         self.assertEqual(response.status_code, 404)
 
+        # This checks to see if we get a 404 if no dogs are found
+        request = factory.get(
+            reverse(
+                'dog_detail',
+                kwargs={'dog_pk': '-1', 'status_pk': 'disliked'}))
+
+        force_authenticate(request, user=self.user)
+        view = views.RetrieveDogView.as_view()
+
+        response = view(request, dog_pk='-1', status_pk='disliked')
+
+        self.assertEqual(response.status_code, 404)
+
+    def test_UpdateUserDogView(self):
+        """Makes sure UpdateUserDogView works properly"""
+        factory = APIRequestFactory()
+
+        request = factory.put(
+            reverse(
+                'UserDog_update',
+                kwargs={'dog_pk': 1, 'status_pk': 'liked'}))
+
+        force_authenticate(request, user=self.user)
+        view = views.UpdateUserDogView.as_view()
+
+        response = view(request, dog_pk='1', status_pk='liked')
+
+        self.assertEqual(response.status_code, 200)
+
+        # We should get the dog we PUT too back
+        self.assertEqual(
+            response.data,
+            {'name': 'Francesca', 'image_filename':
+                'pugorugh/static/images/dogs/1.jpg', 'breed': 'Labrador',
+                'age': 72, 'gender': 'f', 'size': 'l', 'id': 1})
+
+        self.assertEqual(UserDog.objects.get(pk=1).status, 'l')
+
+        # Tests a bad PUT Request
+        request = factory.put(
+            reverse(
+                'UserDog_update',
+                kwargs={'dog_pk': 100, 'status_pk': 'liked'}))
+
+        force_authenticate(request, user=self.user)
+        view = views.UpdateUserDogView.as_view()
+
+        response = view(request, dog_pk='100', status_pk='liked')
+
+        self.assertEqual(response.status_code, 404)
+
     def test_RetrieveUpdateUserPrefView(self):
         """Makes sure UserPref can be returned and updated"""
         factory = APIRequestFactory()

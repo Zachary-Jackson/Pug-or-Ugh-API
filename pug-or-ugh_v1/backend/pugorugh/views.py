@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django.core.exceptions import ObjectDoesNotExist
 
 from rest_framework import generics, permissions
 from rest_framework.response import Response
@@ -23,7 +24,7 @@ class RetrieveDogView(generics.RetrieveAPIView):
         """Gets all UserDog models from the logged in User and filters the
         results based on liked, disliked, or undecided"""
         dog_status = self.kwargs.get('status_pk')
-        # gets down_status down to one letter like the database
+        # gets dog_status down to one letter like the database
         dog_status = dog_status[:1]
 
         return self.queryset.filter(user=self.request.user, status=dog_status)
@@ -45,16 +46,16 @@ class RetrieveDogView(generics.RetrieveAPIView):
             except IndexError:
                 return False
 
-        # we find the current dog's index location so we can use the next
-        # pk in the list
-        found_index = found_pks.index(int(pk))
+        # figures out the next dog by pk
+        next_pk = False
+        for number in found_pks:
+            if number > int(pk):
+                next_pk = number
+                break
 
-        try:
-            dog_pk = found_pks[found_index + 1]
-        except IndexError:
-            return False
-        else:
-            return dog_query.get(pk=dog_pk)
+        if next_pk:
+            return dog_query.get(pk=next_pk)
+        return False
 
     def get(self, reqest, dog_pk, status_pk, format=None):
         dog = self.get_object()
@@ -70,20 +71,33 @@ class UpdateUserDogView(generics.UpdateAPIView):
     serializer_class = serializers.DogSerializer
 
     def get_object(self):
+        """Gets the Dog object from the database or returns False"""
         pk = self.kwargs.get('dog_pk')
 
         new_status = self.kwargs.get('status_pk')
         new_status = new_status[:1]
 
-        dog = self.get_queryset().filter(pk=pk)
+        try:
+            dog = self.get_queryset().get(pk=pk)
+        except ObjectDoesNotExist:
+            return False
+        else:
+            return dog
 
-        # This finds the UserDog associated with the dog an User
-        user_dog_query = models.UserDog.objects.filter(user=self.request.user)
-        user_dog = user_dog_query.get(dog=dog)
+    def put(self, request, dog_pk, status_pk, format=None):
+        dog = self.get_object()
+        if dog:
+            new_status = self.kwargs.get('status_pk')
+            new_status = new_status[:1]
 
-        user_dog.status = new_status
-        user_dog.save()
-        return dog
+            user_dog = models.UserDog.objects.get(user=self.request.user, dog=dog)
+
+            user_dog.status = new_status
+            user_dog.save()
+
+            serializer = serializers.DogSerializer(dog)
+            return Response(serializer.data)
+        return Response(status=404)
 
 
 class RetrieveUpdateUserPrefView(generics.RetrieveUpdateAPIView):

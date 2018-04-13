@@ -1,4 +1,13 @@
 # Pug or Ugh
+This is a website to help pet owners find the dog of their dreams.
+The front end of the site will be connected to the database through the Django
+REST Framework with proper serialization and models.
+
+This website was built in part with HTML, CSS, and React originally supplied
+from www.teamtreehouse.com for a Python Web Development Tech Degree Project.
+The HTML, CSS and React is to be considered built by teamtreehouse for this
+project, but may be edited by me at some point. The following lines of code in
+the README was supplied by teamtreehouse as well.
 
 ## Requirements
 
@@ -24,7 +33,7 @@ properly.
 
 ## Models
 
-The following models and associated field names should be present as they 
+The following models and associated field names should be present as they
 will be expected by the JavaScript application.
 
 * `Dog` - This model represents a dog in the app.
@@ -84,4 +93,3 @@ The following routes are expected by the JavaScript application.
 * To change or set user preferences
 
 	* `/api/user/preferences/`
-
