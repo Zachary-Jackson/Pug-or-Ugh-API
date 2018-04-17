@@ -27,9 +27,11 @@ Create a virtualenv and install the project requirements, which are listed in
 `requirements.txt`. The easiest way to do this is with `pip install -r
 requirements.txt` while your virtualenv is activated.
 
-If you need to import dogs, a `data_import` script has been provided but it
-expects a `DogSerializer` and `Dog` model as outlined below to function
-properly.
+After this initialize the database with python manage.py migrate. You are then
+able to run the `data_import.py` script to import all of the dog models into
+the database if desired. If data_import.py does not work try the
+`old_data_import` script that came with the project. The data_import script
+works on Windows 8.1, but I am not sure about the old_data_import script.
 
 ## Models
 

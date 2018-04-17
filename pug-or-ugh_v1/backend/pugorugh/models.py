@@ -5,8 +5,8 @@ from django.db import models
 class Dog(models.Model):
     """This is the model for a dog"""
     name = models.CharField(max_length=100)
-    image_filename = models.ImageField()
-    breed = models.CharField(max_length=100)
+    image_filename = models.CharField(max_length=100)
+    breed = models.CharField(max_length=100, default='unknown')
 
     age = models.IntegerField(
         help_text='Please enter an integer as months lived.')
