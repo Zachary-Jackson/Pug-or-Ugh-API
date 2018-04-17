@@ -1,5 +1,36 @@
 [
   {
+    "name": "Hattie",
+    "image_filename": "Hattie.jpg",
+    "breed": "Maltiese Poodle",
+    "age": 9,
+    "gender": "f",
+    "size": "s"
+  },
+  {
+    "name": "Sammy",
+    "image_filename": "Sammy.jpg",
+    "age": 70,
+    "gender": "m",
+    "size": "m"
+  },
+  {
+    "name": "Cupcake",
+    "image_filename": "Cupcake.jpg",
+    "breed": "Golden Retriever",
+    "age": 100,
+    "gender": "f",
+    "size": "l"
+  },
+  {
+    "name": "Merry",
+    "image_filename": "Merry.jpg",
+    "breed": "Maltiese Poodle",
+    "age": 135,
+    "gender": "f",
+    "size": "s"
+  },
+  {
     "name": "Francesca",
     "image_filename": "1.jpg",
     "breed": "Labrador",

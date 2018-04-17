@@ -6,7 +6,7 @@ from . import models
 
 
 class DogSerializer(serializers.ModelSerializer):
-    """This serializes the Dog model"""
+    """Serializes the Dog model"""
 
     class Meta:
         fields = (
@@ -22,9 +22,12 @@ class DogSerializer(serializers.ModelSerializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
+    """Serializers the User model"""
     password = serializers.CharField(write_only=True)
 
     def create(self, validated_data):
+        """This creates the User model and initializes UserDogs and UserPref
+        for it"""
         user = get_user_model().objects.create(
             username=validated_data['username'],
         )
@@ -49,7 +52,7 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class UserPrefSerializer(serializers.ModelSerializer):
-    """This serializes the UserPref model"""
+    """Serializes the UserPref model"""
     class Meta:
         fields = (
             'age',

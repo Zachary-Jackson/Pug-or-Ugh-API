@@ -19,13 +19,16 @@ urlpatterns = format_suffix_patterns([
             permanent=True
         )),
     url(r'^$', TemplateView.as_view(template_name='index.html')),
+
     url(r'^api/user/preferences/$',
         RetrieveUpdateUserPrefView.as_view(),
         name='user_pref_detail'),
+
     url(r'^api/dog/(?P<dog_pk>(-)?\d+)/(?P<status_pk>\w+)/next/',
         RetrieveDogView.as_view(),
         name='dog_detail'
         ),
+
     url(r'^api/dog/(?P<dog_pk>(-)?\d+)/(?P<status_pk>\w+)/',
         UpdateUserDogView.as_view(),
         name='UserDog_update'
