@@ -52,7 +52,7 @@ class PugOrUghViewsTests(TestCase):
 
         response = view(request)
 
-        # Their should now be a new user in adition to SetUp
+        # Their should now be a new user in addition to SetUp
         self.assertEqual(len(UserPref.objects.all()), 2)
         self.assertEqual(response.status_code, 201)
 

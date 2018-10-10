@@ -55,13 +55,15 @@ class UserPref(models.Model):
 
     gender = models.CharField(
         max_length=3,
-        help_text=("All gender options are 'm,f' for male and female"),
+        help_text="All gender options are 'm,f' for male and female",
         default='m,f')
 
     size = models.CharField(
         max_length=8,
-        help_text=("All size options are 's,m,l,xl'" +
-                   " for small, medium, large, and extra large"),
+        help_text=(
+                "All size options are 's,m,l,xl'" +
+                " for small, medium, large, and extra large"
+        ),
         default='s,m,l,xl')
 
     def __str__(self):

@@ -100,7 +100,7 @@ class RetrieveDogView(generics.RetrieveAPIView):
             return dog_query.get(pk=next_pk)
         return False
 
-    def get(self, reqest, dog_pk, status_pk, format=None):
+    def get(self, request, dog_pk, status_pk, format=None):
         """Gets the next Dog object or returns 404"""
         dog = self.get_object()
         if dog:
@@ -117,9 +117,6 @@ class UpdateUserDogView(generics.UpdateAPIView):
     def get_object(self):
         """Gets the Dog object from the database or returns False"""
         pk = self.kwargs.get('dog_pk')
-
-        new_status = self.kwargs.get('status_pk')
-        new_status = new_status[:1]
 
         try:
             dog = self.get_queryset().get(pk=pk)
@@ -147,7 +144,7 @@ class UpdateUserDogView(generics.UpdateAPIView):
 
 
 class RetrieveUpdateUserPrefView(generics.RetrieveUpdateAPIView):
-    """This view allows users to update and get user prefrences"""
+    """This view allows users to update and get user preferences"""
     queryset = models.UserPref.objects.all()
     serializer_class = serializers.UserPrefSerializer
 
